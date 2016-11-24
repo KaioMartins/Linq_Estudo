@@ -59,6 +59,55 @@ namespace LinqApp
             return clientes;
         }
 
+        static List<Pedido> CriarPedidos()
+        {
+            List<Pedido> pedidos = new List<Pedido>();
+
+            pedidos.Add(new Pedido()
+            {
+                ID = 1,
+                IdCliente = 1,
+                Data = DateTime.Now,
+                Preco = 40.0
+            });
+            pedidos.Add(new Pedido()
+            {
+                ID = 2,
+                IdCliente = 1,
+                Data = DateTime.Now,
+                Preco = 100.90
+            });
+            pedidos.Add(new Pedido()
+            {
+                ID = 3,
+                IdCliente = 2,
+                Data = DateTime.Now,
+                Preco = 450.0
+            });
+            pedidos.Add(new Pedido()
+            {
+                ID = 4,
+                IdCliente = 3,
+                Data = DateTime.Now,
+                Preco = 32.1
+            });
+            pedidos.Add(new Pedido()
+            {
+                ID = 5,
+                IdCliente = 3,
+                Data = DateTime.Now,
+                Preco = 343.52
+            });
+            pedidos.Add(new Pedido()
+            {
+                ID = 6,
+                IdCliente = 4,
+                Data = DateTime.Now,
+                Preco = 134.98
+            });
+            return pedidos;
+        }
+
         static void ExibirResultado(List<Cliente> clientes)
         {
             foreach (Cliente cliente in clientes)
@@ -75,31 +124,32 @@ namespace LinqApp
 
         static void Main(string[] args)
         {
+
             List<Cliente> clientes = CriarClientes();
+            List<Pedido> pedidos = CriarPedidos();
 
-            IEnumerable<Cliente> resultado;
-
-            resultado = from c in clientes
-                        orderby c.Nome descending
-                        select c;
+            var result = from c in clientes
+                         join p in pedidos
+                         on c.ID equals p.IdCliente
+                         into clientesComPedidos
+                         select new
+                         {
+                             c.Nome,
+                             TotalDePedidos = clientesComPedidos.Count()
+                         };
 
             //Em sintaxe de método ficaria da seguinte forma:
-            //resultado = clientes.OrderByDescending(c => c.Nome);
+            //var result = clientes.Join(pedidos, c => c.ID, p => p.IdCliente, (cliente, pedido) => new { cliente, pedido }).GroupBy(a => a.cliente.Nome).Select(g => new { Nome = g.Key, TotalDePedidos = g.Count() });
 
-            Console.WriteLine("Ordenação:");
-            ExibirResultado(resultado.ToList());
-
-            resultado = from c in clientes
-                        where c.Email.Contains("treinaweb")
-                        select c;
-
-            //Em sintace de método ficaria da seguinte forma
-            //resultado = clientes.where(c => c.Email.Contains("treinaweb"));
-
-            Console.WriteLine("Filtro:");
-            ExibirResultado(resultado.ToList());
+            foreach (var item in result)
+            {
+                Console.WriteLine("*******************************");
+                Console.WriteLine(item);
+                Console.WriteLine("*******************************");
+            }
 
             Console.ReadKey();
+
         }
     }
 
